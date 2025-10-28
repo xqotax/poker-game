@@ -22,7 +22,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Domain", "src\Domain\Domain
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Presentation", "src\Presentation\Presentation.csproj", "{9C5218F1-BDD3-480C-B0D1-49D264C714BD}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GrpcApp", "src\GrpcApp\GrpcApp.csproj", "{CD5B6AD9-2248-43E3-B766-F41EE6634BD0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "App", "src\App\App.csproj", "{CD5B6AD9-2248-43E3-B766-F41EE6634BD0}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ArchitectureTests", "tests\ArchitectureTests\ArchitectureTests.csproj", "{B06BCF89-2243-46D7-9D36-448BFA6CA915}"
 EndProject

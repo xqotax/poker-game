@@ -1,5 +1,5 @@
 using App.Configuration;
-using App.Middlewares;
+using GrpcApp.Middlewares;
 using Infrastructure;
 using Microsoft.EntityFrameworkCore;
 

@@ -1,7 +1,7 @@
 ﻿using System.Net;
 using AvtMedia.CleanArchitecture.DomainLayer.Extensions.Shared;
 
-namespace App.Middlewares;
+namespace GrpcApp.Middlewares;
 
 public class GlobalErrorHandlerMiddleware : IMiddleware
 {
