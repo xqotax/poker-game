@@ -27,7 +27,6 @@ public static class GameDomainErrors
 	public static class GameRound
 	{
 		public static readonly Error InvalidGeneralNumber = new("GameRound.InvalidGeneralNumber");
-		public static readonly Error InvalidTypeNumber = new("GameRound.InvalidTypeNumber");
 		public static readonly Error InvalidType = new("GameRound.InvalidType");
 		public static readonly Error NoBetsProvided = new("GameRound.NoBetsProvided");
 		public static readonly Error BetsAlreadyAccepted = new("GameRound.BetsAlreadyAccepted");

@@ -17,7 +17,7 @@ public sealed class AcceptBetsOnRoundCommandHandler(
 		if (game is null)
 			return Result.Failure(GameDomainErrors.Game.NotFound);
 
-		var round = game.Rounds.FirstOrDefault(r => r.Id == request.RoundId);
+		var round = game.Rounds.OrderByDescending(x => x.GeneralNumber).FirstOrDefault();
 
 		if (round is null)
 			return Result.Failure(GameDomainErrors.Game.NoActiveRound);

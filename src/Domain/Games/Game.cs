@@ -70,14 +70,12 @@ public sealed partial class Game : AggregateRoot<Guid>, IAuditableEntity
 
 		uint accumulated = 0;
 		GameRoundType? nextType = null;
-		uint nextTypeNumber = 0;
 
 		foreach (var (type, count) in roundSequence)
 		{
 			if (nextGeneralNumber <= accumulated + count)
 			{
 				nextType = type;
-				nextTypeNumber = nextGeneralNumber - accumulated;
 				break;
 			}
 			accumulated += count;
@@ -86,7 +84,7 @@ public sealed partial class Game : AggregateRoot<Guid>, IAuditableEntity
 		if (nextType is null)
 			return Result.Failure(GameDomainErrors.Game.DuplicateRound);
 
-		var roundResult = GameRound.Create(nextType.Value, nextGeneralNumber, nextTypeNumber);
+		var roundResult = GameRound.Create(nextType.Value, nextGeneralNumber);
 
 		if (roundResult.IsFailure)
 			return Result.Failure(roundResult.Error);
@@ -113,9 +111,9 @@ public sealed partial class Game : AggregateRoot<Guid>, IAuditableEntity
 		if (acceptBribesResult.IsFailure)
 			return acceptBribesResult;
 
-		bool isLastGameRound = currentRound.Type == GameRoundType.Forehead && currentRound.TypeNumber == 3;
+		var gameContainThreeForeheadRounds = _rounds.Count(r => r.Type == GameRoundType.Forehead) == 3;
 
-		if (isLastGameRound)
+		if (gameContainThreeForeheadRounds)
 		{
 			State = GameState.Finished;
 

@@ -9,7 +9,6 @@ public sealed partial class GameRound : Entity<Guid>
 {
 	public GameRoundType Type { get; private set; }
 	public uint GeneralNumber { get; private set; }
-	public uint TypeNumber { get; private set; }
 
 
 	private readonly HashSet<GameRoundBribe> _bribes = [];
@@ -19,24 +18,15 @@ public sealed partial class GameRound : Entity<Guid>
 	private readonly HashSet<GameRoundBet> _bets = [];
 	public ICollection<GameRoundBet> Bets => [.. _bets];
 
-	public static Result<GameRound> Create(GameRoundType type, uint generalNumber, uint typeNumber)
+	public static Result<GameRound> Create(GameRoundType type, uint generalNumber)
 	{
 		if (generalNumber is 0)
 			return Result.Failure<GameRound>(GameDomainErrors.GameRound.InvalidGeneralNumber);
 
-		if (typeNumber is 0)
-			return Result.Failure<GameRound>(GameDomainErrors.GameRound.InvalidTypeNumber);
-
 		if (type is GameRoundType.None)
 			return Result.Failure<GameRound>(GameDomainErrors.GameRound.InvalidType);
 
-		if (type is GameRoundType.Regular && typeNumber > 10)
-			return Result.Failure<GameRound>(GameDomainErrors.GameRound.InvalidTypeNumber);
-
-		if (type is not GameRoundType.Regular && typeNumber > 3)
-			return Result.Failure<GameRound>(GameDomainErrors.GameRound.InvalidTypeNumber);
-
-		var round = new GameRound(type, generalNumber, typeNumber);
+		var round = new GameRound(type, generalNumber);
 
 		return round;
 	}
@@ -128,11 +118,10 @@ public sealed partial class GameRound : Entity<Guid>
 			return Result.Failure<int>(GameDomainErrors.GameRound.FailedToDetirminePoints);
 	}
 
-	private GameRound(GameRoundType type, uint generalNumber, uint typeNumber)
+	private GameRound(GameRoundType type, uint generalNumber)
 	{
 		Id = Guid.CreateVersion7();
 		Type = type;
 		GeneralNumber = generalNumber;
-		TypeNumber = typeNumber;
 	}
 }

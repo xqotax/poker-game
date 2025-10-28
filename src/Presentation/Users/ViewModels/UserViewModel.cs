@@ -1,5 +1,5 @@
 ﻿namespace Presentation.Users.ViewModels;
 public sealed record UserViewModel(
-	Guid Id,
+	string Id,
 	string Name,
 	DateTime RegistrationDate);
