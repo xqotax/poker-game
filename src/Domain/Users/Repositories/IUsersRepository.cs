@@ -6,6 +6,7 @@ public interface IUsersRepository
 {
 	Task Add(User user, CancellationToken cancellationToken);
 	Task<User?> GetById(Guid id, CancellationToken cancellationToken);
+	Task<User[]> GetAll(bool tracking, CancellationToken cancellationToken);
 
 	Task<bool> NameAlreadyExist(UserName userName, Guid? exceptId, CancellationToken cancellationToken);
 }

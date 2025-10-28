@@ -16,6 +16,16 @@ public sealed class UsersRepository : IUsersRepository
 		await _dbContext.Set<User>().AddAsync(user, cancellationToken);
 	}
 
+	public Task<User[]> GetAll(bool tracking, CancellationToken cancellationToken)
+	{
+		var query = _dbContext.Set<User>().AsQueryable();
+
+		if (tracking is false)
+			query = query.AsNoTracking();
+
+		return query.ToArrayAsync(cancellationToken);
+	}
+
 	public Task<User?> GetById(Guid id, CancellationToken cancellationToken)
 	{
 		return _dbContext.Set<User>().FirstOrDefaultAsync(u => u.Id == id, cancellationToken);

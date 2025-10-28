@@ -22,7 +22,7 @@ public sealed partial class Game : AggregateRoot<Guid>, IAuditableEntity
 
 	public static Result<Game> Create(GameName name, GameMember[] members)
 	{
-		if (members.Length < 3)
+		if (members.Length != 3)
 			return Result.Failure<Game>(GameDomainErrors.Game.InvalidUserCount);
 
 		var duplicateMembers = members.Length != members.Select(x => x.Id).Distinct().Count();
@@ -101,7 +101,7 @@ public sealed partial class Game : AggregateRoot<Guid>, IAuditableEntity
 		return Result.Success();
 	}
 
-	public Result AcceptBribes(GameRoundBribe[] bribes)
+	public Result AddBribes(GameRoundBribe[] bribes)
 	{
 		var currentRound = _rounds.OrderByDescending(r => r.GeneralNumber).FirstOrDefault();
 

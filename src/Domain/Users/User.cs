@@ -10,11 +10,8 @@ public sealed partial class User : AggregateRoot<Guid>
 	public DateTime RegistrationDate { get; private set; }
 
 
-	public static Result<User> Create(UserName username, bool nameAlreadyExist)
+	public static Result<User> Create(UserName username)
 	{
-		if (nameAlreadyExist)
-			return Result.Failure<User>(DomainErrors.UserDomainErrors.User.AlreadyExistWithGivenName);
-
 		var user = new User(username);
 
 		return user;

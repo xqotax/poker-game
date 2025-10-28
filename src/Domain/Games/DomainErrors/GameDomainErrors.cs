@@ -14,6 +14,7 @@ public static class GameDomainErrors
 		public static readonly Error FailedToDetermineWinner = new("Game.FailedToDetermineWinner");
 		public static readonly Error AlreadyFinished = new("Game.AlreadyFinished");
 		public static readonly Error NoActiveRound = new("Game.NoActiveRound");
+		public static readonly Error NotFound = new("Game.NotFound");
 	}
 
 	public static class GameName
