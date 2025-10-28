@@ -15,7 +15,7 @@ public sealed partial class Game : AggregateRoot<Guid>, IAuditableEntity
 
 
 	private readonly HashSet<GameMember> _members = [];
-	public ICollection<GameMember> Member => [.. _members];
+	public ICollection<GameMember> Members => [.. _members];
 
 	private readonly HashSet<GameRound> _rounds = [];
 	public ICollection<GameRound> Rounds => [.. _rounds];
@@ -48,7 +48,7 @@ public sealed partial class Game : AggregateRoot<Guid>, IAuditableEntity
 		Id = Guid.CreateVersion7();
 		Name = name;
 		State = GameState.NotStarted;
-		_members = [..members];
+		_members = [.. members];
 	}
 
 	public Result StartNewRound()
@@ -84,7 +84,7 @@ public sealed partial class Game : AggregateRoot<Guid>, IAuditableEntity
 		}
 
 		if (nextType is null)
-			return Result.Failure(GameDomainErrors.Game.DuplicateRound); 
+			return Result.Failure(GameDomainErrors.Game.DuplicateRound);
 
 		var roundResult = GameRound.Create(nextType.Value, nextGeneralNumber, nextTypeNumber);
 

@@ -1,4 +1,5 @@
 ﻿using Domain.Games;
+using Domain.Games.Models;
 using Domain.Games.Repositories;
 using Domain.Games.ValueObjects;
 using Microsoft.EntityFrameworkCore;
@@ -16,10 +17,23 @@ public sealed class GamesRepository : IGamesRepository
 		await _dbContext.Set<Game>().AddAsync(game, cancellationToken);
 	}
 
+	public Task<GamePreviewInformation[]> GetAll(CancellationToken cancellationToken)
+	{
+		return _dbContext
+			.Set<Game>()
+			.Include(x => x.Members)
+			.Select(g => new GamePreviewInformation(
+				g.Id, 
+				g.Name, 
+				g.Members.Select(m => m.Id).ToArray(), 
+				g.State))
+			.ToArrayAsync(cancellationToken);
+	}
+
 	public Task<Game?> GetById(Guid id, CancellationToken cancellationToken)
 	{
 		return _dbContext.Set<Game>()
-			.Include(g => g.Member)
+			.Include(g => g.Members)
 			.Include(g => g.Rounds)
 			.ThenInclude(r => r.Bets)
 			.Include(g => g.Rounds)
