@@ -5,6 +5,7 @@ using AvtMedia.CleanArchitecture.DomainLayer.Extensions.Shared;
 using AvtMedia.GeneralLibrary.Extensions;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Presentation.Common;
 using Presentation.Users.Extensions;
 using Presentation.Users.ViewModels;
 
@@ -18,10 +19,10 @@ public sealed class UsersController(ISender _sender) : ControllerBase
 	[ProducesResponseType(typeof(string), 200)]
 	[ProducesResponseType(typeof(Error), 400)]
 	public async Task<IActionResult> Create(
-		[FromBody] string name,
+		[FromBody] SingleNameModel body,
 		CancellationToken cancellationToken)
 	{
-		var createUserCommand = new SaveUserCommand(Id: null, name);
+		var createUserCommand = new SaveUserCommand(Id: null, body.Name ?? string.Empty);
 
 		var result = await _sender.Send(createUserCommand, cancellationToken);
 
@@ -33,10 +34,10 @@ public sealed class UsersController(ISender _sender) : ControllerBase
 	[ProducesResponseType(typeof(Error), 400)]
 	public async Task<IActionResult> Create(
 		[FromRoute] string userId,
-		[FromBody] string name,
+		[FromBody] SingleNameModel body,
 		CancellationToken cancellationToken)
 	{
-		var createUserCommand = new SaveUserCommand(userId.ToGuid(), name);
+		var createUserCommand = new SaveUserCommand(userId.ToGuid(), body.Name ?? string.Empty);
 
 		var result = await _sender.Send(createUserCommand, cancellationToken);
 
