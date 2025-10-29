@@ -31,6 +31,7 @@ public static class GameDomainErrors
 		public static readonly Error NoBetsProvided = new("GameRound.NoBetsProvided");
 		public static readonly Error BetsAlreadyAccepted = new("GameRound.BetsAlreadyAccepted");
 		public static readonly Error InvalidBetForRound = new("GameRound.InvalidBetForRound");
+		public static readonly Error InvalidBribeForRound = new("GameRound.InvalidBribeForRound");
 		public static readonly Error DuplicateBets = new("GameRound.DuplicateBets");
 		public static readonly Error DuplicateBribes = new("GameRound.DuplicateBribes");
 		public static readonly Error NoBribesProvided = new("GameRound.NoBribesProvided");
@@ -39,5 +40,6 @@ public static class GameDomainErrors
 		public static readonly Error FailedToDetirminePoints = new("GameRound.FailedToDetirminePoints");
 		public static readonly Error MemberNotInRound = new("GameRound.MemberNotInRound");
 		public static readonly Error RoundNotFinished = new("GameRound.RoundNotFinished");
+		public static readonly Error PrevRoundNotFinished = new("GameRound.PrevRoundNotFinished");
 	}
 }

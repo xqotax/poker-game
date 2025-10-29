@@ -12,5 +12,8 @@ internal class GameRoundBribeConfiguration : IEntityTypeConfiguration<GameRoundB
 		builder.ToTable(TableNames.GameRoundBribes);
 
 		builder.HasKey(x => x.Id);
+
+		builder.Property(x => x.Id)
+			.ValueGeneratedNever();
 	}
 }

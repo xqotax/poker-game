@@ -12,5 +12,8 @@ internal class GameRoundBetsConfiguration : IEntityTypeConfiguration<GameRoundBe
 		builder.ToTable(TableNames.GameRoundBets);
 
 		builder.HasKey(x => x.Id);
+
+		builder.Property(x => x.Id)
+			.ValueGeneratedNever();
 	}
 }

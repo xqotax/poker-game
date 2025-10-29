@@ -25,7 +25,8 @@ public sealed class GamesRepository : IGamesRepository
 			.Select(g => new GamePreviewInformation(
 				g.Id, 
 				g.Name, 
-				g.Members.Select(m => m.Id).ToArray(), 
+				g.Members.Select(m => m.UserId).ToArray(), 
+				g.CreatedOnUtc,
 				g.State))
 			.ToArrayAsync(cancellationToken);
 	}

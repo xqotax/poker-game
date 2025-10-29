@@ -7,9 +7,9 @@ using Application.Games.Queries.GetAll;
 using Application.Users.Queries.GetAll;
 using AvtMedia.CleanArchitecture.DomainLayer.Extensions.Shared;
 using AvtMedia.GeneralLibrary.Extensions;
-using Domain.Games.Models;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Presentation.Common;
 using Presentation.Games.Extensions;
 using Presentation.Games.ViewModels;
 using Presentation.Users.Extensions;
@@ -40,11 +40,11 @@ public sealed class GamesController(ISender _sender) : ControllerBase
 		if (getAllUsersResult.IsFailure)
 			return BadRequest(getAllUsersResult.Error);
 
-		var memberIds = game.Members.Select(m => m.Id).ToArray();
+		var memberIds = game.Members.Select(m => m.UserId).ToArray();
 
 		var memberViewModels = getAllUsersResult.Value
 			.Where(x => memberIds.Contains(x.Id))
-			.Select(x => x.ToGameViewModel(game.Members.First(m => m.Id == x.Id).OrderIndex))
+			.Select(x => x.ToGameViewModel(game.Members.First(m => m.UserId == x.Id).OrderIndex))
 			.ToArray();
 
 		var gameViewModel = game.ToViewModel(memberViewModels);
@@ -53,7 +53,7 @@ public sealed class GamesController(ISender _sender) : ControllerBase
 	}
 
 	[HttpGet("all")]
-	[ProducesResponseType(typeof(GamePreviewInformation[]), 200)]
+	[ProducesResponseType(typeof(GamePreviewViewModel[]), 200)]
 	[ProducesResponseType(typeof(Error), 400)]
 	public async Task<IActionResult> GetAll(
 		CancellationToken cancellationToken)
@@ -65,7 +65,23 @@ public sealed class GamesController(ISender _sender) : ControllerBase
 		if (result.IsFailure)
 			return BadRequest(result.Error);
 
-		return Ok(result.Value);
+		var getAllUsersQuery = new GetAllUsersQuery();
+		var getAllUsersResult = await _sender.Send(getAllUsersQuery, cancellationToken);
+		if (getAllUsersResult.IsFailure)
+			return BadRequest(getAllUsersResult.Error);
+
+		var response = result.Value.Select(game =>
+		{
+			var memberViewModels = game.MemberIds
+				.Select(m => getAllUsersResult.Value
+					.FirstOrDefault(u => u.Id == m)?
+					.ToStringDictionaryModel() ?? new StringDictionaryModel(m.ToString(), "Unknown User" ))
+				.ToArray();
+			return game.ToViewModel(memberViewModels);
+		}).ToArray();
+
+
+		return Ok(response);
 	}
 
 	[HttpPost("{gameId}/start-new-round")]

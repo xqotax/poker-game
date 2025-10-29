@@ -32,7 +32,7 @@ public sealed partial class Game : AggregateRoot<Guid>, IAuditableEntity
 
 		var orderIndexes = members.Select(x => x.OrderIndex).ToArray();
 
-		for (int i = 0; i < members.Length; i++)
+		for (int i = 1; i <= members.Length; i++)
 		{
 			if (orderIndexes.Contains(i) is false)
 				return Result.Failure<Game>(GameDomainErrors.Game.InvalidMemberOrder);
@@ -56,22 +56,16 @@ public sealed partial class Game : AggregateRoot<Guid>, IAuditableEntity
 		if (State == GameState.Finished)
 			return Result.Failure(GameDomainErrors.Game.AlreadyFinished);
 
-		var roundSequence = new (GameRoundType Type, uint Count)[]
-		{
-			(GameRoundType.Regular, 21),
-			(GameRoundType.Dark, 3),
-			(GameRoundType.Meager, 3),
-			(GameRoundType.Trumpless, 3),
-			(GameRoundType.Golden, 3),
-			(GameRoundType.Forehead, 3)
-		};
+		var lastRound = _rounds.OrderByDescending(r => r.GeneralNumber).FirstOrDefault();
+		if (lastRound is not null && lastRound.Bribes.Count == 0)
+			return Result.Failure(GameDomainErrors.GameRound.PrevRoundNotFinished);
 
 		uint nextGeneralNumber = (uint)(_rounds.Count + 1);
 
 		uint accumulated = 0;
 		GameRoundType? nextType = null;
 
-		foreach (var (type, count) in roundSequence)
+		foreach (var (type, count) in GameRound.RoundSequence)
 		{
 			if (nextGeneralNumber <= accumulated + count)
 			{

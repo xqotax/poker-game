@@ -1,4 +1,5 @@
 ﻿using Domain.Users;
+using Presentation.Common;
 using Presentation.Games.ViewModels;
 using Presentation.Users.ViewModels;
 
@@ -12,6 +13,10 @@ public static class UsersExtensions
 				user.Id.ToString(),
 				user.Username.Value,
 				user.RegistrationDate);
+
+		public StringDictionaryModel ToStringDictionaryModel() => new(
+			user.Id.ToString(),
+			user.Username.Value);
 
 		public GameMemberViewModel ToGameViewModel(int orderIndex) => new(
 				user.Id.ToString(),

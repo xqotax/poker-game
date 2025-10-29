@@ -7,5 +7,6 @@ public sealed record GamePreviewInformation(
 	Guid Id,
 	GameName Name,
 	Guid[] MemberIds,
+	DateTime CreatedOnUtc,
 	GameState State
 );

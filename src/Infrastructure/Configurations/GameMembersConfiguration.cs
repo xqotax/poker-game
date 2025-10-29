@@ -12,5 +12,8 @@ internal class GameMembersConfiguration : IEntityTypeConfiguration<GameMember>
 		builder.ToTable(TableNames.GameMembers);
 
 		builder.HasKey(x => x.Id);
+
+		builder.Property(x => x.Id)
+			.ValueGeneratedNever();
 	}
 }

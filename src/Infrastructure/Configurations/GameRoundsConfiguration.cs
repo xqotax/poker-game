@@ -14,6 +14,9 @@ internal class GameRoundsConfiguration : IEntityTypeConfiguration<GameRound>
 
 		builder.HasKey(x => x.Id);
 
+		builder.Property(x => x.Id)
+			.ValueGeneratedNever();
+
 		builder
 			.HasOne<GameRoundTypes>()
 			.WithMany()

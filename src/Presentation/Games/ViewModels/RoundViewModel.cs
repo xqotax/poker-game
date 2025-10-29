@@ -6,5 +6,6 @@ public sealed record RoundViewModel(
 	string Id,
 	GameRoundType Type,
 	uint GeneralNumber,
-	uint TypeNumber
+	string DisplayName,
+	RoundMebmerPointsViewModel[] MebmerPoints
 );

@@ -10,7 +10,6 @@ public sealed partial class GameRound : Entity<Guid>
 	public GameRoundType Type { get; private set; }
 	public uint GeneralNumber { get; private set; }
 
-
 	private readonly HashSet<GameRoundBribe> _bribes = [];
 	public ICollection<GameRoundBribe> Bribes => [.. _bribes];
 
@@ -31,6 +30,47 @@ public sealed partial class GameRound : Entity<Guid>
 		return round;
 	}
 
+
+	private static readonly int[] RegularNumbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1];
+
+	public static readonly IReadOnlyCollection<(GameRoundType Type, uint Count)> RoundSequence =
+	[
+		(GameRoundType.Regular, 21),
+		(GameRoundType.Dark, 3),
+		(GameRoundType.Meager, 3),
+		(GameRoundType.Trumpless, 3),
+		(GameRoundType.Golden, 3),
+		(GameRoundType.Forehead, 3)
+	];
+
+	public string GetDisplayName()
+	{
+		uint roundIndex = GeneralNumber;
+		uint accumulated = 0;
+
+		foreach (var (type, count) in RoundSequence)
+		{
+			if (roundIndex <= accumulated + count)
+			{
+				if (type == GameRoundType.Regular)
+				{
+					int regularIdx = (int)(roundIndex - accumulated - 1);
+					if (regularIdx >= 0 && regularIdx < RegularNumbers.Length)
+						return RegularNumbers[regularIdx].ToString();
+					else
+						return roundIndex.ToString();
+				}
+				else
+				{
+					return type.ToString();
+				}
+			}
+			accumulated += count;
+		}
+
+		return GeneralNumber.ToString();
+	}
+
 	public Result AcceptBets(GameRoundBet[] bets)
 	{
 		if (bets.Length == 0)
@@ -49,6 +89,24 @@ public sealed partial class GameRound : Entity<Guid>
 		if (duplicateBets)
 			return Result.Failure(GameDomainErrors.GameRound.DuplicateBets);
 
+		if (Type != GameRoundType.Forehead)
+		{
+			int sum = bets.Sum(b => b.Amount ?? 0);
+
+			if (Type == GameRoundType.Regular)
+			{
+				int idx = (int)(GeneralNumber - 1);
+				if (idx < 0 || idx >= RegularNumbers.Length || sum == RegularNumbers[idx])
+					return Result.Failure(GameDomainErrors.GameRound.InvalidBetForRound);
+			}
+			else
+			{
+				if (sum == 10)
+					return Result.Failure(GameDomainErrors.GameRound.InvalidBetForRound);
+			}
+		}
+
+
 		_bets.UnionWith(bets);
 
 		return Result.Success();
@@ -62,7 +120,7 @@ public sealed partial class GameRound : Entity<Guid>
 		if (_bribes.Count > 0)
 			return Result.Failure(GameDomainErrors.GameRound.BribesAlreadyAccepted);
 
-		if (_bribes.Count != _bets.Count)
+		if (bribes.Length != _bets.Count)
 			return Result.Failure(GameDomainErrors.GameRound.BribeBetCountMismatch);
 
 		var duplicateBribes = bribes.Length != bribes.Select(x => x.Id).Distinct().Count();
@@ -72,6 +130,25 @@ public sealed partial class GameRound : Entity<Guid>
 
 		_bribes.UnionWith(bribes);
 
+		int sum = bribes.Sum(b => b.Amount);
+
+		if (Type == GameRoundType.Forehead)
+		{
+			if (sum != 1)
+				return Result.Failure(GameDomainErrors.GameRound.InvalidBribeForRound);
+		}
+		else if (Type == GameRoundType.Regular)
+		{
+			int idx = (int)(GeneralNumber - 1);
+			if (idx < 0 || idx >= RegularNumbers.Length || sum != RegularNumbers[idx])
+				return Result.Failure(GameDomainErrors.GameRound.InvalidBribeForRound);
+		}
+		else
+		{
+			if (sum != 10)
+				return Result.Failure(GameDomainErrors.GameRound.InvalidBribeForRound);
+		}
+
 		return Result.Success();
 	}
 
@@ -80,8 +157,8 @@ public sealed partial class GameRound : Entity<Guid>
 		if (_bets.Count == 0 || _bribes.Count == 0)
 			return Result.Failure<int>(GameDomainErrors.GameRound.RoundNotFinished);
 
-		var bet = _bets.FirstOrDefault(b => b.MemberId == gameMember.Id);
-		var bribe = _bribes.FirstOrDefault(b => b.MemberId == gameMember.Id);
+		var bet = _bets.FirstOrDefault(b => b.MemberId == gameMember.UserId);
+		var bribe = _bribes.FirstOrDefault(b => b.MemberId == gameMember.UserId);
 
 		if (bet is null || bribe is null)
 			return Result.Failure<int>(GameDomainErrors.GameRound.MemberNotInRound);
@@ -109,7 +186,7 @@ public sealed partial class GameRound : Entity<Guid>
 		if (passSuccess)
 			return Result.Success(5 * coef);
 		else if (betSuccess)
-			return Result.Success(10 * coef);
+			return Result.Success(10 * coef * bribe.Amount);
 		else if (overBet)
 			return Result.Success(bribe.Amount * coef);
 		else if (underBet)
