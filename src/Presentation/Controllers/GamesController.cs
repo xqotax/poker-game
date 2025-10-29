@@ -44,7 +44,11 @@ public sealed class GamesController(ISender _sender) : ControllerBase
 
 		var memberViewModels = getAllUsersResult.Value
 			.Where(x => memberIds.Contains(x.Id))
-			.Select(x => x.ToGameViewModel(game.Members.First(m => m.UserId == x.Id).OrderIndex))
+			.Select(x =>
+			{
+				var member = game.Members.First(m => m.UserId == x.Id);
+				return x.ToGameViewModel(member.OrderIndex, member.IsWinner);
+			})
 			.ToArray();
 
 		var gameViewModel = game.ToViewModel(memberViewModels);
@@ -75,7 +79,7 @@ public sealed class GamesController(ISender _sender) : ControllerBase
 			var memberViewModels = game.MemberIds
 				.Select(m => getAllUsersResult.Value
 					.FirstOrDefault(u => u.Id == m)?
-					.ToStringDictionaryModel() ?? new StringDictionaryModel(m.ToString(), "Unknown User" ))
+					.ToStringDictionaryModel() ?? new StringDictionaryModel(m.ToString(), "Unknown User"))
 				.ToArray();
 			return game.ToViewModel(memberViewModels);
 		}).ToArray();

@@ -3,5 +3,6 @@
 public sealed record GameMemberViewModel(
 	string Id,
 	string Name,
-	int OrderIndex
+	int OrderIndex,
+	bool Winner
 );

@@ -18,9 +18,10 @@ public static class UsersExtensions
 			user.Id.ToString(),
 			user.Username.Value);
 
-		public GameMemberViewModel ToGameViewModel(int orderIndex) => new(
+		public GameMemberViewModel ToGameViewModel(int orderIndex, bool winner) => new(
 				user.Id.ToString(),
 				user.Username.Value,
-				orderIndex);
+				orderIndex,
+				winner);
 	}
 }

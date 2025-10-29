@@ -73,6 +73,9 @@ public sealed partial class GameRound : Entity<Guid>
 
 	public Result AcceptBets(GameRoundBet[] bets)
 	{
+		if (Type is GameRoundType.Meager)
+			return Result.Failure(GameDomainErrors.GameRound.CanAcceptBetsAsMeager);
+
 		if (bets.Length == 0)
 			return Result.Failure(GameDomainErrors.GameRound.NoBetsProvided);
 
@@ -81,7 +84,7 @@ public sealed partial class GameRound : Entity<Guid>
 
 		var someBetsHasntAmount = bets.Any(b => b.Amount is null);
 
-		if (someBetsHasntAmount && Type is not GameRoundType.Meager)
+		if (someBetsHasntAmount)
 			return Result.Failure(GameDomainErrors.GameRound.InvalidBetForRound);
 
 		var duplicateBets = bets.Length != bets.Select(x => x.Id).Distinct().Count();
@@ -120,7 +123,7 @@ public sealed partial class GameRound : Entity<Guid>
 		if (_bribes.Count > 0)
 			return Result.Failure(GameDomainErrors.GameRound.BribesAlreadyAccepted);
 
-		if (bribes.Length != _bets.Count)
+		if (bribes.Length != _bets.Count && Type is not GameRoundType.Meager)
 			return Result.Failure(GameDomainErrors.GameRound.BribeBetCountMismatch);
 
 		var duplicateBribes = bribes.Length != bribes.Select(x => x.Id).Distinct().Count();
@@ -154,13 +157,13 @@ public sealed partial class GameRound : Entity<Guid>
 
 	public Result<int> GetPoints(GameMember gameMember)
 	{
-		if (_bets.Count == 0 || _bribes.Count == 0)
+		if (_bribes.Count == 0 || _bets.Count == 0 && Type is not GameRoundType.Meager)
 			return Result.Failure<int>(GameDomainErrors.GameRound.RoundNotFinished);
 
 		var bet = _bets.FirstOrDefault(b => b.MemberId == gameMember.UserId);
 		var bribe = _bribes.FirstOrDefault(b => b.MemberId == gameMember.UserId);
 
-		if (bet is null || bribe is null)
+		if (bribe is null)
 			return Result.Failure<int>(GameDomainErrors.GameRound.MemberNotInRound);
 
 		if (Type is GameRoundType.Meager)
@@ -178,10 +181,12 @@ public sealed partial class GameRound : Entity<Guid>
 			_ => 1
 		};
 
-		var passSuccess = bet.Amount == bribe.Amount && bribe.Amount == 0;
-		var betSuccess = bet.Amount == bribe.Amount && bribe.Amount != 0;
-		var overBet = bribe.Amount > bet.Amount;
-		var underBet = bribe.Amount < bet.Amount;
+		var betAmount = bet?.Amount ?? 0;
+
+		var passSuccess = betAmount == bribe.Amount && bribe.Amount == 0;
+		var betSuccess = betAmount == bribe.Amount && bribe.Amount != 0;
+		var overBet = bribe.Amount > betAmount;
+		var underBet = bribe.Amount < betAmount;
 
 		if (passSuccess)
 			return Result.Success(5 * coef);
@@ -190,7 +195,7 @@ public sealed partial class GameRound : Entity<Guid>
 		else if (overBet)
 			return Result.Success(bribe.Amount * coef);
 		else if (underBet)
-			return Result.Success((bet.Amount!.Value - bribe.Amount) * -10 * coef);
+			return Result.Success((betAmount - bribe.Amount) * -10 * coef);
 		else
 			return Result.Failure<int>(GameDomainErrors.GameRound.FailedToDetirminePoints);
 	}
