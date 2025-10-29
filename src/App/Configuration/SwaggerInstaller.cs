@@ -1,7 +1,7 @@
 ﻿using Microsoft.OpenApi.Models;
 using Unchase.Swashbuckle.AspNetCore.Extensions.Extensions;
 
-namespace GrpcApp.Configuration;
+namespace App.Configuration;
 
 public class SwaggerInstaller : IServiceInstaller
 {
