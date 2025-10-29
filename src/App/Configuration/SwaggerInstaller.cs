@@ -14,7 +14,7 @@ public class SwaggerInstaller : IServiceInstaller
 			setup.SwaggerDoc(version, new OpenApiInfo
 			{
 				Description = "",
-				Title = "AVT Media",
+				Title = "Poker game",
 				Version = version,
 			});
 
