@@ -22,7 +22,7 @@ public sealed partial class Game : AggregateRoot<Guid>, IAuditableEntity
 
 	public static Result<Game> Create(GameName name, GameMember[] members)
 	{
-		if (members.Length != 3)
+		if (members.Length < 3 || members.Length > 6)
 			return Result.Failure<Game>(GameDomainErrors.Game.InvalidUserCount);
 
 		var duplicateMembers = members.Length != members.Select(x => x.Id).Distinct().Count();
@@ -65,7 +65,7 @@ public sealed partial class Game : AggregateRoot<Guid>, IAuditableEntity
 		uint accumulated = 0;
 		GameRoundType? nextType = null;
 
-		foreach (var (type, count) in GameRound.RoundSequence)
+		foreach (var (type, count) in GameRound.RoundSequence(_members.Count))
 		{
 			if (nextGeneralNumber <= accumulated + count)
 			{
@@ -100,14 +100,14 @@ public sealed partial class Game : AggregateRoot<Guid>, IAuditableEntity
 		if (currentRound is null)
 			return Result.Failure(GameDomainErrors.Game.NoActiveRound);
 
-		var acceptBribesResult = currentRound.AcceptBribes(bribes);
+		var acceptBribesResult = currentRound.AcceptBribes(bribes, _members.Count);
 
 		if (acceptBribesResult.IsFailure)
 			return acceptBribesResult;
 
-		var gameContainThreeForeheadRounds = _rounds.Count(r => r.Type == GameRoundType.Forehead) == 3;
+		var gameContainEnoughForeheadRounds = _rounds.Count(r => r.Type == GameRoundType.Forehead) == _members.Count;
 
-		if (gameContainThreeForeheadRounds)
+		if (gameContainEnoughForeheadRounds)
 		{
 			State = GameState.Finished;
 

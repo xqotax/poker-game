@@ -26,7 +26,7 @@ public sealed class AcceptBetsOnRoundCommandHandler(
 			.Select(bet => new GameRoundBet(bet.Key, bet.Value))
 			.ToArray();
 
-		var acceptResult = round.AcceptBets(bets);
+		var acceptResult = round.AcceptBets(bets, game.Members.Count);
 
 		if (acceptResult.IsFailure)
 			return Result.Failure(acceptResult.Error);

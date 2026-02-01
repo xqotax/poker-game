@@ -49,7 +49,7 @@ public static class GamesExtensions
 						round.Id.ToString(),
 						round.Type,
 						round.GeneralNumber,
-						round.GetDisplayName(),
+						round.GetDisplayName(game.Members.Count),
 						memberPoints
 					);
 				})
